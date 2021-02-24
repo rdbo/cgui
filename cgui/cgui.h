@@ -187,16 +187,16 @@ cgui_void cgui_draw_triangle(       cgui_handle *handle,
                                     cgui_vec2 vertex1,
                                     cgui_vec2 vertex2     );
 /*===========================================================================*/
-cgui_void cgui_draw_polygon(        cgui_handle *handle,
-                                    cgui_int vertices,
-                                    cgui_int thickness,
-                                    cgui_color color,
-                                    ...     );
+cgui_void cgui_draw_polygon(    cgui_handle *handle,
+                                cgui_vec2 *vertices,
+                                cgui_int vertex_count,
+                                cgui_int thickness,
+                                cgui_color color    );
 /*===========================================================================*/
 cgui_void cgui_draw_filled_polygon(     cgui_handle *handle,
-                                        cgui_int vertices,
-                                        cgui_color color,
-                                        ...     );
+                                        cgui_vec2 *vertices,
+                                        cgui_int vertex_count,
+                                        cgui_color color     );
 /*===========================================================================*/
 cgui_void cgui_draw_text(   cgui_handle *handle,
                             cgui_vec2 pos,
