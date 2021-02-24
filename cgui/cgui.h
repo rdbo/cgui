@@ -17,6 +17,9 @@
 #define CGUI_IMPL_SDL  0
 #define CGUI_IMPL_VK   0
 
+#define CGUI_GL_USE_GLES 0
+#define CGUI_GL_USE_GLFW 0
+
 /* Common Includes */
 
 #include <math.h>
@@ -60,20 +63,20 @@ typedef struct cgui_color /* Color Type */
     cgui_byte green;
     cgui_byte blue;
     cgui_byte alpha;
-};
+} cgui_color;
 
 typedef struct cgui_vec2 /* Generic 2D Vector Type */
 {
     cgui_float x;
     cgui_float y;
-};
+} cgui_vec2;
 
 typedef struct cgui_vec3 /* Generic 3D Vector Type */
 {
     cgui_float x;
     cgui_float y;
     cgui_float z;
-};
+} cgui_vec3;
 
 typedef struct cgui_vec4 /* Generic 4D Vector Type */
 {
@@ -81,12 +84,12 @@ typedef struct cgui_vec4 /* Generic 4D Vector Type */
     cgui_float y;
     cgui_float z;
     cgui_float w;
-};
+} cgui_vec4;
 
 typedef struct cgui_font
 {
     cgui_data data;
-};
+} cgui_font;
 
 /* DirectX 9 Implementation */
 #if  CGUI_IMPL_DX9
@@ -106,7 +109,7 @@ typedef struct cgui_dx9_handle
 typedef struct cgui_dx10_handle
 {
     struct cgui_handle handle;
-};
+} cgui_dx10_handle;
 #endif
 
 /* DirectX 11 Implementation */
@@ -117,7 +120,7 @@ typedef struct cgui_dx10_handle
 typedef struct cgui_dx11_handle
 {
     struct cgui_handle handle;
-};
+} cgui_dx11_handle;
 #endif
 
 /* DirectX 12 Implementation */
@@ -128,7 +131,7 @@ typedef struct cgui_dx11_handle
 typedef struct cgui_dx12_handle
 {
     struct cgui_handle handle;
-};
+} cgui_dx12_handle;
 #endif
 
 /* OpenGL Implementation */
@@ -138,7 +141,7 @@ typedef struct cgui_dx12_handle
 typedef struct cgui_gl_handle
 {
     struct cgui_handle handle;
-};
+} cgui_gl_handle;
 #endif
 
 /* SDL Implementation */
@@ -148,7 +151,7 @@ typedef struct cgui_gl_handle
 typedef struct cgui_sdl_handle
 {
     struct cgui_handle handle;
-};
+} cgui_sdl_handle;
 #endif
 
 /* Vulkan Implementation */
@@ -156,7 +159,7 @@ typedef struct cgui_sdl_handle
 typedef struct cgui_vk_handle
 {
     struct cgui_handle handle;
-};
+} cgui_vk_handle;
 #endif
 
 /* Common Functions */
