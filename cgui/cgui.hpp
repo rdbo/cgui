@@ -23,10 +23,11 @@
 
 /* Common Defines */
 #define CGUI_PI PI
+#define CGUI_CIRCLE_SIDES 20
 
 /* Base Types */
 typedef void                                     cgui_void;
-typedef enum cgui_bool { CGUI_TRUE, CGUI_FALSE } cgui_bool;
+typedef bool                                     cgui_bool;
 typedef char                                     cgui_char;
 typedef unsigned char                            cgui_byte;
 typedef short                                    cgui_short;
@@ -150,6 +151,7 @@ typedef struct cgui_font /* Generic Font Type */
 /* DirectX 9 Implementation */
 #if  CGUI_IMPL_DX9
 #include <d3d9.h>
+#include <d3dx9.h>
 
 typedef struct cgui_dx9_handle : cgui_handle
 {
@@ -231,14 +233,14 @@ cgui_void CGUI_Shutdown(cgui_handle *handle);
 /* CGUI */
 namespace cgui
 {
-    cgui_void draw_line(cgui_handle *handle, cgui_vec2 point0, cgui_vec2 point1, cgui_color color, cgui_int thickness = 1);
-    cgui_void draw_rect(cgui_handle *handle, cgui_vec2 min, cgui_vec2 max, cgui_color color, cgui_int thickness = 1);
+    cgui_void draw_line(cgui_handle *handle, cgui_vec2 point0, cgui_vec2 point1, cgui_color color, cgui_float thickness = 1.0f);
+    cgui_void draw_rect(cgui_handle *handle, cgui_vec2 min, cgui_vec2 max, cgui_color color, cgui_float thickness = 1.0f);
     cgui_void draw_filled_rect(cgui_handle *handle, cgui_vec2 min, cgui_vec2 max, cgui_color color);
-    cgui_void draw_circle(cgui_handle *handle, cgui_vec2 center, cgui_int radius, cgui_color color, cgui_int thickness = 1);
-    cgui_void draw_filled_circle(cgui_handle *handle, cgui_vec2 center, cgui_int radius, cgui_color color);
-    cgui_void draw_triangle(cgui_handle *handle, cgui_vec2 vertex0, cgui_vec2 vertex1, cgui_vec2 vertex2, cgui_color color, cgui_int thickness = 1);
+    cgui_void draw_circle(cgui_handle *handle, cgui_vec2 center, cgui_float radius, cgui_color color, cgui_float thickness = 1.0f);
+    cgui_void draw_filled_circle(cgui_handle *handle, cgui_vec2 center, cgui_float radius, cgui_color color);
+    cgui_void draw_triangle(cgui_handle *handle, cgui_vec2 vertex0, cgui_vec2 vertex1, cgui_vec2 vertex2, cgui_color color, cgui_float thickness = 1.0f);
     cgui_void draw_filled_triangle(cgui_handle *handle, cgui_vec2 vertex0, cgui_vec2 vertex1, cgui_vec2 vertex2, cgui_color color);
-    cgui_void draw_polygon(cgui_handle *handle, cgui_vec2 *vertices, cgui_int vertex_count, cgui_color color, cgui_int thickness = 1);
+    cgui_void draw_polygon(cgui_handle *handle, cgui_vec2 *vertices, cgui_int vertex_count, cgui_color color, cgui_float thickness = 1.0f);
     cgui_void draw_filled_polygon(cgui_handle *handle, cgui_vec2 *vertices, cgui_int vertex_count, cgui_color color);
     cgui_void draw_text(cgui_handle *handle, cgui_vec2 position, cgui_font font, cgui_int size, cgui_string text, cgui_color color);    
 }
