@@ -88,7 +88,7 @@ cgui_void cgui::draw_circle(cgui_handle *handle, cgui_vec2 center, cgui_float ra
 {
     if (!handle || radius == 0.0f) return;
 
-    int sides = (int)(CGUI_CIRCLE_SIDES * radius);
+    int sides = (int)(CGUI_CIRCLE_VERTICES * radius);
     float angle = 360.0f / sides;
     
     cgui_vec2 old_point = cgui_vec2(0.0f, 0.0f);
@@ -99,7 +99,7 @@ cgui_void cgui::draw_circle(cgui_handle *handle, cgui_vec2 center, cgui_float ra
         float dist_cos = cos(cur_angle / 180.0f * CGUI_PI) * radius;
 
         cgui_vec2 cur_point = cgui_vec2(center.x + dist_sin, center.y + dist_cos);
-        
+
         if (cur_angle == 0.0f)
         {
             old_point = cur_point;
@@ -108,5 +108,85 @@ cgui_void cgui::draw_circle(cgui_handle *handle, cgui_vec2 center, cgui_float ra
 
         cgui::draw_line(handle, old_point, cur_point, color, thickness);
         old_point = cur_point;
+    }
+}
+
+cgui_void cgui::draw_filled_circle(cgui_handle *handle, cgui_vec2 center, cgui_float radius, cgui_color color)
+{
+    if (!handle || radius == 0.0f) return;
+
+    int sides = (int)(CGUI_CIRCLE_VERTICES * radius);
+    float angle = 360.0f / sides;
+    
+    cgui_vec2 old_point = cgui_vec2(0.0f, 0.0f);
+
+    for (float cur_angle = 0.0f; cur_angle < 360.0f; cur_angle += angle)
+    {
+        float dist_sin = sin(cur_angle / 180.0f * CGUI_PI) * radius;
+        float dist_cos = cos(cur_angle / 180.0f * CGUI_PI) * radius;
+
+        cgui_vec2 cur_point = cgui_vec2(center.x + dist_sin, center.y + dist_cos);
+
+        if (cur_angle == 0.0f)
+        {
+            old_point = cur_point;
+            continue;
+        }
+
+        cgui::draw_triangle(handle, center, old_point, cur_point, color);
+        old_point = cur_point;
+    }
+}
+
+cgui_void cgui::draw_triangle(cgui_handle *handle, cgui_vec2 vertex0, cgui_vec2 vertex1, cgui_vec2 vertex2, cgui_color color, cgui_float thickness)
+{
+    if (!handle) return;
+
+    cgui::draw_line(handle, vertex0, vertex1, color, thickness);
+    cgui::draw_line(handle, vertex1, vertex2, color, thickness);
+    cgui::draw_line(handle, vertex2, vertex0, color, thickness);
+}
+
+cgui_void cgui::draw_filled_triangle(cgui_handle *handle, cgui_vec2 vertex0, cgui_vec2 vertex1, cgui_vec2 vertex2, cgui_color color)
+{
+    if (!handle) return;
+
+    switch (handle->api)
+    {
+#       if CGUI_IMPL_DX9
+        case CGUI_API_DX9:
+        {
+            cgui_dx9_handle *dx9_handle = (cgui_dx9_handle *)handle;
+
+            struct CUSTOMVERTEX
+            {
+                FLOAT x, y, z, rhw;
+                DWORD color;
+            };
+
+            CUSTOMVERTEX VertexData[3] = 
+            {
+                {vertex0.x, vertex0.y, 1.0f, 1.0f, D3DCOLOR_RGBA(color.red, color.green, color.blue, color.alpha)},
+                {vertex1.x, vertex1.y, 1.0f, 1.0f, D3DCOLOR_RGBA(color.red, color.green, color.blue, color.alpha)},
+                {vertex2.x, vertex2.y, 1.0f, 1.0f, D3DCOLOR_RGBA(color.red, color.green, color.blue, color.alpha)}
+            };
+            
+            DWORD CustomFVF = D3DFVF_XYZRHW | D3DFVF_DIFFUSE;
+            IDirect3DVertexBuffer9 *VertexBuffer = (IDirect3DVertexBuffer9 *)NULL;
+            dx9_handle->pD3DDevice->CreateVertexBuffer(sizeof(VertexData) / sizeof(VertexData[0]), 0, CustomFVF, D3DPOOL_DEFAULT, &VertexBuffer, NULL);
+            if (VertexBuffer)
+            {
+                void *bData;
+                VertexBuffer->Lock(0, 0, &bData, 0);
+                memcpy(bData, VertexData, sizeof(VertexData));
+                VertexBuffer->Unlock();
+                dx9_handle->pD3DDevice->SetFVF(CustomFVF);
+                dx9_handle->pD3DDevice->SetStreamSource(0, VertexBuffer, 0, sizeof(CUSTOMVERTEX));
+                dx9_handle->pD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, 1);
+                VertexBuffer->Release();
+            }
+        }
+        break;
+#       endif
     }
 }

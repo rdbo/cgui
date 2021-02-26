@@ -23,7 +23,7 @@
 
 /* Common Defines */
 #define CGUI_PI 3.141592654f
-#define CGUI_CIRCLE_SIDES 10
+#define CGUI_CIRCLE_VERTICES 10
 
 /* Base Types */
 typedef void                                     cgui_void;
