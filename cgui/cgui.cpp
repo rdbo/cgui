@@ -88,33 +88,25 @@ cgui_void cgui::draw_circle(cgui_handle *handle, cgui_vec2 center, cgui_float ra
 {
     if (!handle || radius == 0.0f) return;
 
-    switch (handle->api)
+    int sides = (int)(CGUI_CIRCLE_SIDES * radius);
+    float angle = 360.0f / sides;
+    
+    cgui_vec2 old_point = cgui_vec2(0.0f, 0.0f);
+
+    for (float cur_angle = 0.0f; cur_angle < 360.0f; cur_angle += angle)
     {
-#       if CGUI_IMPL_DX9
-        case CGUI_API_DX9:
+        float dist_sin = sin(cur_angle / 180.0f * CGUI_PI) * radius;
+        float dist_cos = cos(cur_angle / 180.0f * CGUI_PI) * radius;
+
+        cgui_vec2 cur_point = cgui_vec2(center.x + dist_sin, center.y + dist_cos);
+        
+        if (cur_angle == 0.0f)
         {
-            int sides = (int)(CGUI_CIRCLE_SIDES * radius);
-            float angle = D3DX_PI * 2 / sides;
-            float cosine = cos(angle);
-            float sine = sin(angle);
-
-            float x1 = radius;
-            float x2 = 0.0f;
-            float y1 = 0.0f;
-            float y2 = 0.0f;
-
-            for (int i = 0; i < sides; ++i)
-            {
-                x2 = cosine * x1 - sine * y1 + center.x;
-                y2 = sine * x1 + cosine * y1 + center.y;
-                x1 += center.x;
-                y1 += center.y;
-                cgui::draw_line(handle, cgui_vec2(x1, y1), cgui_vec2(x2, y2), color, thickness);
-                x1 = x2 - center.x;
-                y1 = y2 - center.y;
-            }
+            old_point = cur_point;
+            continue;
         }
-        break;
-#       endif
+
+        cgui::draw_line(handle, old_point, cur_point, color, thickness);
+        old_point = cur_point;
     }
 }
