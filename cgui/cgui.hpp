@@ -8,24 +8,17 @@
 #ifndef CGUI_HPP
 #define CGUI_HPP
 
-/* Implementation Settings */
-#define CGUI_IMPL_DX9     1
-#define CGUI_IMPL_DX10    0
-#define CGUI_IMPL_DX11    0
-#define CGUI_IMPL_DX12    0
-#define CGUI_IMPL_SDL     0
-#define CGUI_IMPL_GL      0
-#define CGUI_IMPL_VK      0
-
-/* Common Includes */
-#include <string>
+/* Includes */
 #include <cmath>
+#include <string>
 
-/* Common Defines */
+/* Defines */
+#define CGUI_FALSE false
+#define CGUI_TRUE  true
 #define CGUI_PI 3.141592654f
 #define CGUI_CIRCLE_VERTICES 10
 
-/* Base Types */
+/* Types */
 typedef void                                     cgui_void;
 typedef bool                                     cgui_bool;
 typedef char                                     cgui_char;
@@ -35,214 +28,276 @@ typedef int                                      cgui_int;
 typedef unsigned int                             cgui_uint;
 typedef float                                    cgui_float;
 typedef double                                   cgui_double;
-typedef cgui_byte                               *cgui_data;
+typedef cgui_uint                                cgui_size;
 typedef std::basic_string<cgui_char>             cgui_string;
 
-/* Common Types */
-typedef enum cgui_api /* Graphics API */
-{ 
-    CGUI_API_DX9,
-    CGUI_API_DX10,
-    CGUI_API_DX11,
-    CGUI_API_DX12, 
-    CGUI_API_GL,
-    CGUI_API_SDL,
-    CGUI_API_VK,
-    CGUI_API_NONE
-} cgui_api;
-
-typedef struct cgui_handle /* Base Handle */
+/* Classes */
+template <cgui_size length>
+class cgui_array
 {
-    cgui_api api = CGUI_API_NONE;
-} cgui_handle;
+	/*
+	 * Generic array with
+	 * static length
+	 */
+private:
+	cgui_float data[length];
+public:
+	cgui_array()
+	{
 
-typedef struct cgui_color /* Color Type */
+	}
+
+	~cgui_array()
+	{
+
+	}
+public:
+	inline cgui_float operator[](cgui_size pos)
+	{
+		cgui_float item = 0.0f;
+		if (pos < (sizeof(this->data) / sizeof(this->data[0])))
+			item = this->data[pos];
+		return item;
+	}
+
+	inline cgui_bool operator==(cgui_array<length>& arr)
+	{
+		cgui_bool ret = CGUI_TRUE;
+
+		for (cgui_size i = 0; i < length; ++i)
+		{
+			ret = ((*this)[i] == arr[i] ? ret : CGUI_FALSE);
+			if (ret == CGUI_FALSE) break;
+		}
+
+		return ret;
+	}
+};
+
+template <typename cgui_type>
+class cgui_vector
 {
-    cgui_byte red   = 0;
-    cgui_byte green = 0;
-    cgui_byte blue  = 0;
-    cgui_byte alpha = 0;
+	/*
+	 * Generic vector with
+	 * dynamic length
+	 */
+private:
+	cgui_size len = 0;
+	cgui_type *buf = (cgui_type *)nullptr;
+public:
+	inline cgui_vector()
+	{
 
-    inline cgui_color(cgui_byte r, cgui_byte g, cgui_byte b, cgui_byte a = 255)
-    {
-        this->red   = r;
-        this->green = g;
-        this->blue  = b;
-        this->alpha = a;
-    }
+	}
 
-    inline cgui_color(cgui_float r, cgui_float g, cgui_float b, cgui_float a = 1.0f)
-    {
-        this->red   = (cgui_byte)(r * 255.0f);
-        this->green = (cgui_byte)(g * 255.0f);
-        this->blue  = (cgui_byte)(b * 255.0f);
-        this->alpha = (cgui_byte)(a * 255.0f);
-    }
-} cgui_color;
+	inline ~cgui_vector()
+	{
+		if (this->buf)
+			delete[] this->buf;
+	}
+public:
+	cgui_type operator[](cgui_size pos)
+	{
+		cgui_type ret = (cgui_type)0;
+		if (pos < this->length())
+			ret = this->data()[pos];
+		return ret;
+	}
 
-typedef struct cgui_vec2 /* Generic 2D Vector Type */
+	cgui_bool operator==(cgui_vector<cgui_type>& vec)
+	{
+		cgui_bool ret = CGUI_FALSE;
+		if (vec.length() != this->length()) return ret;
+
+		ret = CGUI_TRUE;
+
+		for (cgui_size i = 0; i < length; ++i)
+		{
+			ret = ((*this)[i] == vec[i] ? ret : CGUI_FALSE);
+			if (ret == CGUI_FALSE) break;
+		}
+
+		return ret;
+	}
+
+public:
+	inline cgui_size length()
+	{
+		return this->len;
+	}
+
+	inline cgui_type *data()
+	{
+		return this->buf;
+	}
+
+	inline cgui_void push(cgui_type value)
+	{
+		cgui_type *holder = this->data();
+		this->buf = new cgui_type[this->length() + 1];
+		if (holder)
+		{
+			for (cgui_size i = 0; i < this->length(); ++i)
+				this->buf[i] = holder[i];
+			delete[] holder;
+		}
+
+		++this->len;
+	}
+
+	inline cgui_type pop()
+	{
+		cgui_type ret = (cgui_type)0;
+		if (this->length() == 0) return ret;
+
+		cgui_type *holder = this->data();
+		this->buf = new cgui_type[this->length() - 1];
+		if (holder)
+		{
+			for (cgui_size i = 0; i < this->length() - 1; ++i)
+				this->buf[i] = holder[i];
+			delete[] holder;
+		}
+	}
+};
+
+class cgui_color
 {
-    cgui_float x = 0.0f;
-    cgui_float y = 0.0f;
+	/*
+	 * Generic color class
+	 */
 
-    inline cgui_vec2(cgui_float x, cgui_float y)
-    {
-        this->x = x;
-        this->y = y;
-    }
+private:
+	cgui_byte red   = 0;
+	cgui_byte green = 0;
+	cgui_byte blue  = 0;
+	cgui_byte alpha = 0;
+public:
+	inline cgui_color(cgui_byte r, cgui_byte g, cgui_byte b, cgui_byte a = 255)
+	{
+		this->red   = r;
+		this->green = g;
+		this->blue  = b;
+		this->alpha = a;
+	}
 
-    inline cgui_vec2(cgui_int x, cgui_int y)
-    {
-        this->x = (cgui_float)x;
-        this->y = (cgui_float)y;
-    }
-} cgui_vec2;
+	inline cgui_color(cgui_float r, cgui_float g, cgui_float b, cgui_float a = 1.0f)
+	{
+		this->red   = (cgui_byte)(r * 255.0f);
+		this->green = (cgui_byte)(g * 255.0f);
+		this->blue  = (cgui_byte)(b * 255.0f);
+		this->alpha = (cgui_byte)(a * 255.0f);
+	}
 
-typedef struct cgui_vec3 /* Generic 3D Vector Type */
+	inline cgui_color(cgui_uint color)
+	{
+		this->red   = (cgui_byte)(color & (0xFF >> 0));
+		this->green = (cgui_byte)(color & (0xFF >> 8));
+		this->blue  = (cgui_byte)(color & (0xFF >> 16));
+		this->alpha = (cgui_byte)(color & (0xFF >> 24));
+	}
+
+	inline cgui_byte Red()
+	{
+		return this->red;
+	}
+
+	inline cgui_byte Green()
+	{
+		return this->green;
+	}
+
+	inline cgui_byte Blue()
+	{
+		return this->blue;
+	}
+
+	inline cgui_byte Alpha()
+	{
+		return this->alpha;
+	}
+
+	inline cgui_uint Hex()
+	{
+		cgui_uint hex = 0;
+		hex |= (this->red   >>  0);
+		hex |= (this->green >>  8);
+		hex |= (this->blue  >> 16);
+		hex |= (this->blue  >> 24);
+		return hex;
+	}
+};
+
+class cgui_font
 {
-    cgui_float x = 0.0f;
-    cgui_float y = 0.0f;
-    cgui_float z = 0.0f;
+private:
+	cgui_byte *data = (cgui_byte *)nullptr;
+public:
+	inline cgui_font()
+	{
 
-    inline cgui_vec3(cgui_float x, cgui_float y, cgui_float z)
-    {
-        this->x = x;
-        this->y = y;
-        this->z = z;
-    }
+	}
 
-    inline cgui_vec3(cgui_int x, cgui_int y, cgui_int z)
-    {
-        this->x = (cgui_float)x;
-        this->y = (cgui_float)y;
-        this->z = (cgui_float)z;
-    }
-} cgui_vec3;
+	inline cgui_font(cgui_byte *buffer, cgui_size size)
+	{
+		this->Create(buffer, size);
+	}
 
-typedef struct cgui_vec4 /* Generic 4D Vector Type */
+	inline ~cgui_font()
+	{
+		if(this->data)
+			this->Free();
+	}
+public:
+	inline cgui_void Create(cgui_byte *buffer, cgui_size size)
+	{
+		if (this->data)
+			this->Free();
+		this->data = new cgui_byte[size];
+		for (cgui_size i = 0; i < size; ++i)
+			this->data[i] = buffer[i];
+	}
+
+	inline cgui_byte *GetData()
+	{
+		return this->data;
+	}
+
+	inline cgui_void Free()
+	{
+		delete[] this->data;
+	}
+};
+
+class cgui_handle
 {
-    cgui_float x;
-    cgui_float y;
-    cgui_float z;
-    cgui_float w;
+	/*
+	 * This class is a portable
+	 * handle for any graphics
+	 * API. It constains draw
+	 * functions and some of them
+	 * must be defined manually
+	 * by the implementation. These
+	 * functions are marked after
+	 * 'Mandatory Override' and
+	 * before 'Optional Override'.
+	 */
+public:
+	/* Mandatory Override */
+	virtual inline cgui_void DrawLine(cgui_array<2> point0, cgui_array<2> point1, cgui_color color, cgui_float thickness) {  }
+	virtual inline cgui_void DrawFilledRectangle(cgui_array<2> min, cgui_array<2> max, cgui_color color) {  }
+	virtual inline cgui_void DrawFilledTriangle(cgui_array<2> vertex0, cgui_array<2> vertex1, cgui_array<2> vertex2, cgui_color color) {  }
+	virtual inline cgui_void DrawText(cgui_string text, cgui_font font, cgui_array<2> position, cgui_color color, cgui_size size) {  }
 
-    inline cgui_vec4(cgui_float x, cgui_float y, cgui_float z, cgui_float w)
-    {
-        this->x = x;
-        this->y = y;
-        this->z = z;
-        this->w = w;
-    }
-
-    inline cgui_vec4(cgui_int x, cgui_int y, cgui_int z, cgui_int w)
-    {
-        this->x = (cgui_float)x;
-        this->y = (cgui_float)y;
-        this->z = (cgui_float)z;
-        this->w = (cgui_float)w;
-    }
-} cgui_vec4;
-
-typedef struct cgui_font /* Generic Font Type */
-{
-    cgui_data data;
-} cgui_font;
-
-/* DirectX 9 Implementation */
-#if  CGUI_IMPL_DX9
-#include <d3d9.h>
-#include <d3dx9.h>
-
-typedef struct cgui_dx9_handle : cgui_handle
-{
-    IDirect3DDevice9 *pD3DDevice;
-
-    cgui_dx9_handle(IDirect3DDevice9 *pD3DDevice9)
-    {
-        this->api = CGUI_API_DX9;
-        this->pD3DDevice = pD3DDevice9;
-    }
-} cgui_dx9_handle;
-
-cgui_handle *CGUI_Init_DX9(IDirect3DDevice9 *pD3DDevice);
-#endif
-
-#if CGUI_IMPL_DX10
-typedef struct cgui_dx10_handle : cgui_handle
-{
-    cgui_dx10_handle()
-    {
-        this->api = CGUI_API_DX10;
-    }
-} cgui_dx10_handle;
-#endif
-
-#if CGUI_IMPL_DX11
-typedef struct cgui_dx11_handle : cgui_handle
-{
-    cgui_dx11_handle()
-    {
-        this->api = CGUI_API_DX11;
-    }
-} cgui_dx11_handle;
-#endif
-
-#if CGUI_IMPL_DX12
-typedef struct cgui_dx12_handle : cgui_handle
-{
-    cgui_dx12_handle()
-    {
-        this->api = CGUI_API_DX12;
-    }
-} cgui_dx12_handle;
-#endif
-
-#if CGUI_IMPL_SDL
-typedef struct cgui_sdl_handle : cgui_handle
-{
-    cgui_sdl_handle()
-    {
-        this->api = CGUI_API_SDL;
-    }
-} cgui_sdl_handle;
-#endif
-
-#if CGUI_IMPL_GL
-typedef struct cgui_gl_handle : cgui_handle
-{
-    cgui_gl_handle()
-    {
-        this->api = CGUI_API_GL;
-    }
-} cgui_gl_handle;
-#endif
-
-#if CGUI_IMPL_VK
-typedef struct cgui_vk_handle : cgui_handle
-{
-    cgui_vk_handle()
-    {
-        this->api = CGUI_API_VK;
-    }
-} cgui_vk_handle;
-#endif
-
-/* Common Implementation */
-cgui_void CGUI_Shutdown(cgui_handle *handle);
-
-/* CGUI */
-namespace cgui
-{
-    cgui_void draw_line(cgui_handle *handle, cgui_vec2 point0, cgui_vec2 point1, cgui_color color, cgui_float thickness = 1.0f);
-    cgui_void draw_rect(cgui_handle *handle, cgui_vec2 min, cgui_vec2 max, cgui_color color, cgui_float thickness = 1.0f);
-    cgui_void draw_filled_rect(cgui_handle *handle, cgui_vec2 min, cgui_vec2 max, cgui_color color);
-    cgui_void draw_circle(cgui_handle *handle, cgui_vec2 center, cgui_float radius, cgui_color color, cgui_float thickness = 1.0f);
-    cgui_void draw_filled_circle(cgui_handle *handle, cgui_vec2 center, cgui_float radius, cgui_color color);
-    cgui_void draw_triangle(cgui_handle *handle, cgui_vec2 vertex0, cgui_vec2 vertex1, cgui_vec2 vertex2, cgui_color color, cgui_float thickness = 1.0f);
-    cgui_void draw_filled_triangle(cgui_handle *handle, cgui_vec2 vertex0, cgui_vec2 vertex1, cgui_vec2 vertex2, cgui_color color);
-    cgui_void draw_polygon(cgui_handle *handle, cgui_vec2 *vertices, cgui_int vertex_count, cgui_color color, cgui_float thickness = 1.0f);
-    cgui_void draw_filled_polygon(cgui_handle *handle, cgui_vec2 *vertices, cgui_int vertex_count, cgui_color color);
-    cgui_void draw_text(cgui_handle *handle, cgui_vec2 position, cgui_font font, cgui_int size, cgui_string text, cgui_color color);    
-}
+	/* Optional Override */
+	virtual inline cgui_void DrawRectangle(cgui_array<2> min, cgui_array<2> max, cgui_color color, cgui_float thickness = 1.0f);
+	virtual inline cgui_void DrawQuad(cgui_array<2> point0, cgui_array<2> point1, cgui_array<2> point2, cgui_array<2> point3, cgui_color color, cgui_float thickness = 1.0f);
+	virtual inline cgui_void DrawFilledQuad(cgui_array<2> point0, cgui_array<2> point1, cgui_array<2> point2, cgui_array<2> point3, cgui_color color);
+	virtual inline cgui_void DrawTriangle(cgui_array<2> vertex0, cgui_array<2> vertex1, cgui_array<2> vertex2, cgui_color color, cgui_float thickness = 1.0f);
+	virtual inline cgui_void DrawCircle(cgui_array<2> center, cgui_float radius, cgui_color color, cgui_float thickness = 1.0f);
+	virtual inline cgui_void DrawFilledCircle(cgui_array<2> center, cgui_float radius, cgui_color color);
+	virtual inline cgui_void DrawPolygon(cgui_vector<cgui_array<2>> vertices, cgui_color color, cgui_float thickness = 1.0f);
+	virtual inline cgui_void DrawFilledPolygon(cgui_vector<cgui_array<2>> vertices, cgui_color color);
+};
 
 #endif
