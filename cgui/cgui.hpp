@@ -11,8 +11,6 @@
 /* Includes */
 #include <cmath>
 #include <string>
-#include <array>
-#include <vector>
 
 /* Defines */
 #define CGUI_FALSE false
@@ -37,24 +35,151 @@ typedef unsigned int                             cgui_uint;
 typedef float                                    cgui_float;
 typedef double                                   cgui_double;
 typedef cgui_uint                                cgui_size;
-typedef std::basic_string<cgui_char>             cgui_string;
 
 /* Classes */
 template <typename cgui_type, cgui_size _length>
-class cgui_array : public std::array<cgui_type, _length>
+class cgui_array
 {
 	/*
 	 * Generic array with
 	 * static length
 	 */
+private:
+	cgui_type buf[_length];
+public:
+	inline cgui_array()
+	{
+
+	}
+
+	inline cgui_array(std::initializer_list<cgui_type> list)
+	{
+		cgui_size index = 0;
+		for (cgui_type *it = (cgui_type *)list.begin(); it != (cgui_type *)list.end(); ++index, it = &it[1])
+			this->buf[index] = *it;
+	}
+
+	inline ~cgui_array()
+	{
+
+	}
+public:
+	inline cgui_type &operator[](cgui_size index)
+	{
+		return this->buf[index];
+	}
+public:
+	inline cgui_size length()
+	{
+		return _length;
+	}
+
+	inline cgui_size size()
+	{
+		return this->length() * sizeof(cgui_type);
+	}
+
+	inline cgui_type *data()
+	{
+		return this->buf;
+	}
 };
 
 template <typename cgui_type>
-class cgui_vector : public std::vector<cgui_type>
+class cgui_vector
 {
 	/*
 	 * Generic vector with
 	 * dynamic length
+	 */
+private:
+	cgui_size len = 0;
+	cgui_type *buf = (cgui_type *)nullptr;
+public:
+	inline cgui_vector()
+	{
+
+	}
+
+	inline cgui_vector(std::initializer_list<cgui_type> list)
+	{
+		this->len = list.size();
+		this->buf = new cgui_type[this->len];
+		cgui_size index = 0;
+		for (cgui_type *it = (cgui_type *)list.begin(); it != (cgui_type *)list.end(); ++index, it = &it[1])
+			this->buf[index] = *it;
+	}
+
+	inline ~cgui_vector()
+	{
+		if (this->buf)
+			delete[] this->buf;
+	}
+public:
+	inline cgui_type &operator[](cgui_size index)
+	{
+		return this->buf[index];
+	}
+public:
+	inline cgui_size length()
+	{
+		return this->len;
+	}
+
+	inline cgui_size size()
+	{
+		return this->length() * sizeof(cgui_type);
+	}
+
+	inline cgui_type *data()
+	{
+		return this->buf;
+	}
+
+	inline cgui_type *begin()
+	{
+		return &this->buf[0];
+	}
+
+	inline cgui_type *end()
+	{
+		return &this->buf[this->len - 1];
+	}
+
+	inline cgui_void resize(cgui_size size)
+	{
+		cgui_type *holder = this->buf;
+		this->buf = new cgui_type[size];
+		if (holder)
+		{
+			for (cgui_size i = 0; i < this->len; ++i)
+				this->buf[i] = holder[i];
+			delete[] holder;
+		}
+
+		this->len = size;
+	}
+
+	inline cgui_void push(cgui_type value)
+	{
+		this->resize(this->len + 1);
+		this->buf[this->len] = value;
+		++this->len;
+	}
+
+	inline cgui_type pop()
+	{
+		--this->len;
+		cgui_type value = this->buf[this->len];
+		this->resize(this->len);
+		return value;
+	}
+};
+
+class cgui_string : std::basic_string<cgui_char>
+{
+	/*
+	 * Generic string
 	 */
 };
 
@@ -140,12 +265,11 @@ class cgui_font : public cgui_vector<cgui_byte>
 class cgui_handle
 {
 	/*
-	 * This class is a portable
-	 * handle for any graphics
-	 * API. It constains draw
-	 * functions and some of them
-	 * must be defined manually
-	 * by the implementation. These
+	 * Portable handle for any graphics
+	 * API. It constains draw functions
+	 * and some of them must be defined
+	 * manually by the implementation,
+	 * as they're API specific. These
 	 * functions are marked after
 	 * 'Mandatory Override' and
 	 * before 'Optional Override'.
@@ -245,7 +369,7 @@ public:
 
 	virtual inline cgui_void DrawPolygon(cgui_vector<cgui_array<cgui_float, 2>> vertices, cgui_color color, cgui_float thickness = 1.0f)
 	{
-		for (cgui_size i = 0; i < vertices.size() && i > 0; ++i)
+		for (cgui_size i = 0; i < vertices.length() && i > 0; ++i)
 		{
 			cgui_array<cgui_float, 2> &vertex0 = vertices[i - 1];
 			cgui_array<cgui_float, 2> &vertex1 = vertices[i];
@@ -256,7 +380,7 @@ public:
 
 	virtual inline cgui_void DrawFilledPolygon(cgui_vector<cgui_array<cgui_float, 2>> vertices, cgui_color color)
 	{
-		for (cgui_size i = 0; i < vertices.size() && i >= 2; ++i)
+		for (cgui_size i = 0; i < vertices.length() && i >= 2; ++i)
 		{
 			cgui_array<cgui_float, 2> &vertex0 = vertices[i - 2];
 			cgui_array<cgui_float, 2> &vertex1 = vertices[i - 1];

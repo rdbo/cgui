@@ -6,6 +6,9 @@
 
 class cgui_handle_dx9 : public cgui_handle
 {
+    /*
+     * DirectX 9 CGUI Handle
+     */
 private:
     IDirect3DDevice9 *pD3DDevice = (IDirect3DDevice9 *)nullptr;
 public:
