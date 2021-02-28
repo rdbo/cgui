@@ -10,7 +10,7 @@
 
 /* Includes */
 #include <cmath>
-#include <string>
+#include <initializer_list>
 
 /* Defines */
 #define CGUI_FALSE false
@@ -23,6 +23,7 @@
 #define CGUI_SIN2(ang) CGUI_SIN(ang / 180.0f * CGUI_PI)
 #define CGUI_COS(ang) cos(ang)
 #define CGUI_COS2(ang) CGUI_COS(ang / 180.0f * CGUI_PI)
+#define CGUI_STRLEN(str) strlen(str)
 
 /* Types */
 typedef void                                     cgui_void;
@@ -194,11 +195,31 @@ public:
 	}
 };
 
-class cgui_string : std::basic_string<cgui_char>
+class cgui_string : public cgui_vector<cgui_char>
 {
 	/*
 	 * Generic string
 	 */
+
+public:
+	cgui_string(const cgui_char *string)
+	{
+		cgui_size str_len = CGUI_STRLEN(string);
+		for (cgui_size i = 0; i < str_len; ++i)
+			this->push(string[i]);
+	}
+
+	cgui_string(cgui_char *string)
+	{
+		cgui_size str_len = CGUI_STRLEN(string);
+		for (cgui_size i = 0; i < str_len; ++i)
+			this->push(string[i]);
+	}
+public:
+	cgui_char *c_str()
+	{
+		return this->data();
+	}
 };
 
 class cgui_color
