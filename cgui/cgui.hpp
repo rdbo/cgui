@@ -94,6 +94,11 @@ public:
 		this->alpha = (cgui_byte)(color & (0xFF >> 24));
 	}
 
+	inline ~cgui_color()
+	{
+
+	}
+public:
 	inline cgui_byte Red()
 	{
 		return this->red;
@@ -149,7 +154,7 @@ public:
 	/* Mandatory Override */
 	virtual inline cgui_void DrawLine(cgui_array<cgui_float, 2> point0, cgui_array<cgui_float, 2> point1, cgui_color color, cgui_float thickness) {  }
 	virtual inline cgui_void DrawFilledTriangle(cgui_array<cgui_float, 2> vertex0, cgui_array<cgui_float, 2> vertex1, cgui_array<cgui_float, 2> vertex2, cgui_color color) {  }
-	virtual inline cgui_void DrawText(cgui_string text, cgui_font font, cgui_array<cgui_float, 2> position, cgui_color color, cgui_size size) {  }
+	virtual inline cgui_void DrawFont(cgui_string text, cgui_font font, cgui_array<cgui_float, 2> position, cgui_color color, cgui_size size) {  }
 
 	/* Optional Override */
 	virtual inline cgui_void DrawRectangle(cgui_array<cgui_float, 2> min, cgui_array<cgui_float, 2> max, cgui_color color, cgui_float thickness = 1.0f)
@@ -158,9 +163,9 @@ public:
 		p0 = min;
 		p1 = p0;
 		p1[1] = max[1];
-		p2 = p1;
-		p2[0] = max[0];
-		p3 = max;
+		p2 = max;
+		p3 = p2;
+		p3[1] = p0[1];
 
 		this->DrawQuad(p0, p1, p2, p3, color, thickness);
 	}
@@ -171,9 +176,9 @@ public:
 		p0 = min;
 		p1 = p0;
 		p1[1] = max[1];
-		p2 = p1;
-		p2[0] = max[0];
-		p3 = max;
+		p2 = max;
+		p3 = p2;
+		p3[1] = p0[1];
 
 		this->DrawFilledQuad(p0, p1, p2, p3, color);
 	}
@@ -211,8 +216,8 @@ public:
 			cgui_float dist_sin = CGUI_SIN2(cur_angle) * radius;
 			cgui_float dist_cos = CGUI_COS2(cur_angle) * radius;
 			cgui_array<cgui_float, 2> cur_point;
-			cur_point[0] = old_point[0] + dist_sin;
-			cur_point[1] = old_point[1] + dist_cos;
+			cur_point[0] = center[0] + dist_sin;
+			cur_point[1] = center[1] + dist_cos;
 			if (cur_angle != 0.0f)
 				this->DrawLine(old_point, cur_point, color, thickness);
 			old_point = cur_point;
@@ -230,8 +235,8 @@ public:
 			cgui_float dist_sin = CGUI_SIN2(cur_angle) * radius;
 			cgui_float dist_cos = CGUI_COS2(cur_angle) * radius;
 			cgui_array<cgui_float, 2> cur_point = {  };
-			cur_point[0] = old_point[0] + dist_sin;
-			cur_point[1] = old_point[1] + dist_cos;
+			cur_point[0] = center[0] + dist_sin;
+			cur_point[1] = center[1] + dist_cos;
 			if (cur_angle != 0.0f)
 				this->DrawFilledTriangle(center, old_point, cur_point, color);
 			old_point = cur_point;
