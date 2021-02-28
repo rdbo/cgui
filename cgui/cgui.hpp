@@ -118,7 +118,25 @@ public:
 public:
 	inline cgui_type &operator[](cgui_size index)
 	{
+		if (index > this->length())
+			this->resize(index + 1);
 		return this->buf[index];
+	}
+
+	inline cgui_void operator+=(cgui_type value)
+	{
+		this->push(value);
+	}
+
+	inline cgui_void operator+=(cgui_vector<cgui_type>& vec)
+	{
+		cgui_size old_length = this->length();
+		this->resize((old_length + 1) + (vec.length() + 1));
+		
+		for (cgui_size i = 0; i < vec.length(); ++i)
+		{
+			(*this)[old_length + i] = vec[i];
+		}
 	}
 public:
 	inline cgui_size length()
