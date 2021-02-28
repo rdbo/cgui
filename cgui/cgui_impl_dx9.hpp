@@ -35,7 +35,7 @@ public:
         }
     }
 
-    inline cgui_void DrawFilledRectangle(cgui_array<cgui_float, 2> min, cgui_array<cgui_float, 2> max, cgui_color color)
+    inline cgui_void DrawFilledRectangle(cgui_array<cgui_float, 2> min, cgui_array<cgui_float, 2> max, cgui_color color) final
     {
         D3DRECT DXRect = { (LONG)min[0], (LONG)min[1], (LONG)max[0], (LONG)max[1] };
         this->pD3DDevice->Clear(1, &DXRect, D3DCLEAR_TARGET, D3DCOLOR_RGBA(color.Red(), color.Green(), color.Blue(), color.Alpha()), 0.0f, 0);
