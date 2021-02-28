@@ -55,7 +55,7 @@ public:
 	inline cgui_array(std::initializer_list<cgui_type> list)
 	{
 		cgui_size index = 0;
-		for (cgui_type *it = (cgui_type *)list.begin(); it != (cgui_type *)list.end(); ++index, it = &it[1])
+		for (cgui_type *it = (cgui_type *)list.begin(); it != (cgui_type *)list.end() && index < _length; ++index, it = &it[1])
 			this->buf[index] = *it;
 	}
 
