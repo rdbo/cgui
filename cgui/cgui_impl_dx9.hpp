@@ -12,12 +12,12 @@ class cgui_handle_dx9 : public cgui_handle
 private:
     IDirect3DDevice9 *pD3DDevice = (IDirect3DDevice9 *)nullptr;
 public:
-    cgui_handle_dx9(IDirect3DDevice9 *pD3DDevice9)
+    inline cgui_handle_dx9(IDirect3DDevice9 *pD3DDevice9)
     {
         this->pD3DDevice = pD3DDevice9;
     }
 
-    ~cgui_handle_dx9()
+    inline ~cgui_handle_dx9()
     {
 
     }
