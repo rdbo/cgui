@@ -103,7 +103,7 @@ public:
 
 	}
 
-	inline cgui_vector(std::initializer_list<cgui_type>& list)
+	inline cgui_vector(std::initializer_list<cgui_type> list)
 	{
 		this->len = list.size();
 		this->buf = new cgui_type[this->len];
