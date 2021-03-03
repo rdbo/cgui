@@ -47,7 +47,7 @@ class cgui_array
 	 * static length
 	 */
 private:
-	cgui_type buf[_length];
+	cgui_type buf[_length] = {  };
 public:
 	inline cgui_array()
 	{
@@ -308,6 +308,13 @@ class cgui_font : public cgui_vector<cgui_byte>
 	/*
 	 * Generic font
 	 */
+protected:
+	cgui_void *buf = (cgui_void *)nullptr;
+public:
+	cgui_void *data()
+	{
+		return this->buf;
+	}
 };
 
 class cgui_handle
