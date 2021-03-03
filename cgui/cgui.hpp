@@ -106,7 +106,7 @@ public:
 	inline cgui_vector(std::initializer_list<cgui_type> list)
 	{
 		this->len = list.size();
-		this->buf = new cgui_type[this->len];
+		this->buf = new cgui_type[this->len + 1];
 		cgui_size index = 0;
 		for (cgui_type *it = (cgui_type *)list.begin(); it != (cgui_type *)list.end(); ++index, it = &it[1])
 			this->buf[index] = *it;
@@ -269,10 +269,10 @@ public:
 
 	inline cgui_color(cgui_uint color)
 	{
-		this->red   = (cgui_byte)(color & (0xFF >> 0));
-		this->green = (cgui_byte)(color & (0xFF >> 8));
-		this->blue  = (cgui_byte)(color & (0xFF >> 16));
-		this->alpha = (cgui_byte)(color & (0xFF >> 24));
+		this->red   = (cgui_byte)((color & (0xFF << 24)) >> 24);
+		this->green = (cgui_byte)((color & (0xFF << 16)) >> 16);
+		this->blue  = (cgui_byte)((color & (0xFF <<  8)) >>  8);
+		this->alpha = (cgui_byte)((color & (0xFF <<  0)) >>  0);
 	}
 
 	inline ~cgui_color()
@@ -303,10 +303,10 @@ public:
 	inline cgui_uint Hex()
 	{
 		cgui_uint hex = 0;
-		hex |= (this->red   >>  0);
-		hex |= (this->green >>  8);
-		hex |= (this->blue  >> 16);
-		hex |= (this->blue  >> 24);
+		hex |= (this->red   <<  24);
+		hex |= (this->green <<  16);
+		hex |= (this->blue  <<   8);
+		hex |= (this->blue  <<   0);
 		return hex;
 	}
 };
