@@ -1,3 +1,10 @@
+/*
+ * ====================================
+ * =          CGUI - by rdbo          =
+ * =      Universal Graphics API      =
+ * ====================================
+ */
+
 #ifndef CGUI_IMPL_DX9_HPP
 #define CGUI_IMPL_DX9_HPP
 #include <d3d9.h>
