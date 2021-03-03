@@ -102,7 +102,7 @@ public:
 
 	}
 
-	inline cgui_vector(std::initializer_list<cgui_type> list)
+	inline cgui_vector(std::initializer_list<cgui_type>& list)
 	{
 		this->len = list.size();
 		this->buf = new cgui_type[this->len];
@@ -240,6 +240,14 @@ public:
 		this->green = g;
 		this->blue  = b;
 		this->alpha = a;
+	}
+
+	inline cgui_color(cgui_uint r, cgui_uint g, cgui_uint b, cgui_uint a = 255)
+	{
+		this->red   = (cgui_byte)r;
+		this->green = (cgui_byte)g;
+		this->blue  = (cgui_byte)b;
+		this->alpha = (cgui_byte)a;
 	}
 
 	inline cgui_color(cgui_float r, cgui_float g, cgui_float b, cgui_float a = 1.0f)
