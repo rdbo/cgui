@@ -251,6 +251,14 @@ public:
 		this->alpha = (cgui_byte)a;
 	}
 
+	inline cgui_color(cgui_int r, cgui_int g, cgui_int b, cgui_int a = 255)
+	{
+		this->red   = (cgui_byte)r;
+		this->green = (cgui_byte)g;
+		this->blue  = (cgui_byte)b;
+		this->alpha = (cgui_byte)a;
+	}
+
 	inline cgui_color(cgui_float r, cgui_float g, cgui_float b, cgui_float a = 1.0f)
 	{
 		this->red   = (cgui_byte)(r * 255.0f);
