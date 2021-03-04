@@ -24,6 +24,8 @@
 #define CGUI_SIN2(ang) CGUI_SIN(ang / 180.0f * CGUI_PI)
 #define CGUI_COS(ang) cos(ang)
 #define CGUI_COS2(ang) CGUI_COS(ang / 180.0f * CGUI_PI)
+#define CGUI_SQRT(val) sqrtf(val)
+#define CGUI_POW(val, exp) powf(val, exp)
 #define CGUI_STRLEN(str) strlen(str)
 
 /* Types */
@@ -340,7 +342,6 @@ class cgui_handle
 public:
 	/* Mandatory Override */
 	virtual inline cgui_void DrawLine(cgui_array<cgui_float, 2> point0, cgui_array<cgui_float, 2> point1, cgui_color color, cgui_float thickness) {  }
-	virtual inline cgui_void DrawFilledTriangle(cgui_array<cgui_float, 2> vertex0, cgui_array<cgui_float, 2> vertex1, cgui_array<cgui_float, 2> vertex2, cgui_color color) {  }
 	virtual inline cgui_void DrawFont(cgui_string text, cgui_font font, cgui_array<cgui_float, 2> position, cgui_color color, cgui_size size) {  }
 
 	/* Optional Override */
@@ -392,6 +393,44 @@ public:
 		this->DrawLine(vertex2, vertex0, color, thickness);
 	}
 
+	virtual inline cgui_void DrawFilledTriangle(cgui_array<cgui_float, 2> vertex0, cgui_array<cgui_float, 2> vertex1, cgui_array<cgui_float, 2> vertex2, cgui_color color)
+	{
+		cgui_array<cgui_array<cgui_float, 2>, 3 > vertices = { vertex0, vertex1, vertex2 };
+		cgui_array<cgui_float, 2> centroid = { (vertex0[0] + vertex1[0] + vertex2[0]) / 3, (vertex0[1] + vertex1[1] + vertex2[1]) / 3 };
+		cgui_float distance = CGUI_SQRT(CGUI_POW(centroid[0] - vertex0[0], 2) + CGUI_POW(centroid[1] - vertex0[1], 2));
+		cgui_float thickness = distance / 50.0f;
+
+		this->DrawTriangle(vertices[0], vertices[1], vertices[2], color, thickness);
+
+		for (cgui_float i = 0; i < distance; i += thickness)
+		{
+			for (cgui_size j = 0; j < 3; ++j)
+			{
+				if (vertices[j][0] < centroid[0])
+				{
+					vertices[j][0] += thickness;
+				}
+
+				else if (vertices[j][0] > centroid[0])
+				{
+					vertices[j][0] -= thickness;
+				}
+
+				if (vertices[j][1] < centroid[1])
+				{
+					vertices[j][1] += thickness;
+				}
+
+				else if (vertices[j][1] > centroid[1])
+				{
+					vertices[j][1] -= thickness;
+				}
+			}
+
+			this->DrawTriangle(vertices[0], vertices[1], vertices[2], color, thickness);
+		}
+	}
+
 	virtual inline cgui_void DrawCircle(cgui_array<cgui_float, 2> center, cgui_float radius, cgui_color color, cgui_float thickness = 1.0f)
 	{
 		cgui_int vertices = (cgui_int)(CGUI_CIRCLE_VERTICES * radius);
@@ -425,7 +464,7 @@ public:
 			cur_point[0] = center[0] + dist_sin;
 			cur_point[1] = center[1] + dist_cos;
 			if (cur_angle != 0.0f)
-				this->DrawFilledTriangle(center, old_point, cur_point, color);
+				this->DrawTriangle(center, old_point, cur_point, color);
 			old_point = cur_point;
 		}
 	}
