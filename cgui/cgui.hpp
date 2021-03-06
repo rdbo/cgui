@@ -174,7 +174,7 @@ public:
 		this->buf = new cgui_type[size];
 		if (holder)
 		{
-			for (cgui_size i = 0; i < this->len; ++i)
+			for (cgui_size i = 0; i < (this->len < size ? this->len : size); ++i)
 				this->buf[i] = holder[i];
 			delete[] holder;
 		}
@@ -185,7 +185,7 @@ public:
 	inline cgui_void push(cgui_type value)
 	{
 		this->resize(this->len + 1);
-		this->buf[this->len] = value;
+		this->buf[this->len - 1] = value;
 		++this->len;
 	}
 
@@ -313,7 +313,7 @@ public:
 	}
 };
 
-class cgui_font : public cgui_vector<cgui_byte>
+class cgui_font
 {
 	/*
 	 * Generic font
@@ -341,8 +341,8 @@ class cgui_handle
 	 */
 public:
 	/* Mandatory Override */
-	virtual inline cgui_void DrawLine(cgui_array<cgui_float, 2> point0, cgui_array<cgui_float, 2> point1, cgui_color color, cgui_float thickness) {  }
-	virtual inline cgui_void DrawFont(cgui_string text, cgui_font font, cgui_array<cgui_float, 2> position, cgui_color color, cgui_size size) {  }
+	virtual inline cgui_void DrawLine(cgui_array<cgui_float, 2> point0, cgui_array<cgui_float, 2> point1, cgui_color color, cgui_float thickness = 1.0f) {  }
+	virtual inline cgui_void DrawFont(cgui_string text, cgui_font font, cgui_array<cgui_float, 2> position, cgui_color color) {  }
 
 	/* Optional Override */
 	virtual inline cgui_void DrawRectangle(cgui_array<cgui_float, 2> min, cgui_array<cgui_float, 2> max, cgui_color color, cgui_float thickness = 1.0f)

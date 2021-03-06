@@ -29,6 +29,11 @@ public:
 
 	}
 public:
+	inline IDirect3DDevice9 *GetDevice()
+	{
+		return this->pD3DDevice;
+	}
+public:
 	/* Mandatory Override */
 	inline cgui_void DrawLine(cgui_array<cgui_float, 2> point0, cgui_array<cgui_float, 2> point1, cgui_color color, cgui_float thickness) final
 	{
@@ -46,11 +51,41 @@ public:
 		}
 	}
 
+	inline cgui_void DrawFont(cgui_string text, cgui_font font, cgui_array<cgui_float, 2> position, cgui_color color) final
+	{
+		LPD3DXFONT DXFont = (LPD3DXFONT)font.data();
+		RECT Rect = {  };
+		DXFont->DrawTextA((LPD3DXSPRITE)NULL, text.c_str(), text.length(), &Rect, DT_CALCRECT, D3DCOLOR_RGBA(color.Red(), color.Green(), color.Blue(), color.Alpha()));
+		DXFont->DrawTextA((LPD3DXSPRITE)NULL, text.c_str(), text.length(), &Rect, DT_NOCLIP, D3DCOLOR_RGBA(color.Red(), color.Green(), color.Blue(), color.Alpha()));
+	}
+
 	/* Optional Override */
 	inline cgui_void DrawFilledRectangle(cgui_array<cgui_float, 2> min, cgui_array<cgui_float, 2> max, cgui_color color) final
 	{
 		D3DRECT DXRect = { (LONG)min[0], (LONG)min[1], (LONG)max[0], (LONG)max[1] };
 		this->pD3DDevice->Clear(1, &DXRect, D3DCLEAR_TARGET, D3DCOLOR_RGBA(color.Red(), color.Green(), color.Blue(), color.Alpha()), 0.0f, 0);
+	}
+};
+
+class cgui_font_dx9 : cgui_font
+{
+	/*
+	 * DirectX 9 Font
+	 */
+public:
+	inline cgui_font_dx9(cgui_handle_dx9 handle, cgui_string font_name, cgui_size size, cgui_bool bold, cgui_bool italic)
+	{
+		IDirect3DDevice9 *pD3DDevice = handle.GetDevice();
+		D3DXCreateFontA(pD3DDevice, size, 0, (bold ? FW_BOLD : FW_REGULAR), 0, (BOOL)italic, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, font_name.c_str(), (LPD3DXFONT *)&this->buf);
+	}
+
+	inline ~cgui_font_dx9()
+	{
+		if (this->buf)
+		{
+			LPD3DXFONT DXFont = (LPD3DXFONT)this->buf;
+			DXFont->Release();
+		}
 	}
 };
 
