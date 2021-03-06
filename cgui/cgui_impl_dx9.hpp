@@ -67,7 +67,7 @@ public:
 	}
 };
 
-class cgui_font_dx9 : cgui_font
+class cgui_font_dx9 : public cgui_font
 {
 	/*
 	 * DirectX 9 Font
